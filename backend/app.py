@@ -8,7 +8,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import csv
 import io
 
-from db import init_db, query_db
+from db import init_db, query_db, IS_POSTGRES
 
 app = Flask(__name__)
 # Enable CORS for frontend requests on port 5173
@@ -402,14 +402,15 @@ def delete_transaction(transaction_id):
 def get_monthly_analytics():
     # Summarize income vs expense by month for the current user
     # MySQL query groups by year-month format
+    date_format = "TO_CHAR(date, 'YYYY-MM')" if IS_POSTGRES else "DATE_FORMAT(date, '%Y-%m')"
     results = query_db(
-        """
-        SELECT DATE_FORMAT(date, '%Y-%m') as month,
+        f"""
+        SELECT {date_format} as month,
                SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END) as income,
                SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END) as expense
         FROM transactions
         WHERE user_id = %s
-        GROUP BY DATE_FORMAT(date, '%Y-%m')
+        GROUP BY {date_format}
         ORDER BY month ASC
         LIMIT 12
         """,
