@@ -30,7 +30,17 @@ export default function Auth({ onLoginSuccess }) {
         body: JSON.stringify(payload),
       });
 
-      const data = await response.json();
+      const contentType = response.headers.get("content-type");
+      let data = {};
+      
+      if (contentType && contentType.includes("application/json")) {
+        data = await response.json();
+      } else {
+        const text = await response.text();
+        const match = text.match(/<p>(.*?)<\/p>/);
+        const errMsg = match ? match[1] : `Server Error (HTTP ${response.status})`;
+        throw new Error(errMsg);
+      }
 
       if (!response.ok) {
         throw new Error(data.error || 'Something went wrong');

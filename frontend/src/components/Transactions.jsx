@@ -120,8 +120,15 @@ export default function Transactions({ token }) {
       });
       
       if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || 'Failed to delete');
+        const contentType = res.headers.get("content-type");
+        let errorMsg = 'Failed to delete';
+        if (contentType && contentType.includes("application/json")) {
+          const data = await res.json();
+          errorMsg = data.error || errorMsg;
+        } else {
+          errorMsg = `Server Error (HTTP ${res.status})`;
+        }
+        throw new Error(errorMsg);
       }
       
       setTransactions(transactions.filter(t => t.id !== id));
@@ -148,7 +155,16 @@ export default function Transactions({ token }) {
         })
       });
 
-      const data = await res.json();
+      const contentType = res.headers.get("content-type");
+      let data = {};
+      if (contentType && contentType.includes("application/json")) {
+        data = await res.json();
+      } else {
+        const text = await res.text();
+        const match = text.match(/<p>(.*?)<\/p>/);
+        const errMsg = match ? match[1] : `Server Error (HTTP ${res.status})`;
+        throw new Error(errMsg);
+      }
 
       if (!res.ok) {
         throw new Error(data.error || 'Failed to create category');
@@ -191,7 +207,16 @@ export default function Transactions({ token }) {
         body: JSON.stringify(payload)
       });
 
-      const data = await res.json();
+      const contentType = res.headers.get("content-type");
+      let data = {};
+      if (contentType && contentType.includes("application/json")) {
+        data = await res.json();
+      } else {
+        const text = await res.text();
+        const match = text.match(/<p>(.*?)<\/p>/);
+        const errMsg = match ? match[1] : `Server Error (HTTP ${res.status})`;
+        throw new Error(errMsg);
+      }
 
       if (!res.ok) {
         throw new Error(data.error || 'Failed to save transaction');
