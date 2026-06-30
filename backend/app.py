@@ -2,7 +2,7 @@ import os
 import secrets
 from datetime import datetime, date
 from decimal import Decimal
-from flask import Flask, request, jsonify, g, make_response
+from flask import Flask, request, jsonify, g, make_response, send_from_directory
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
 import csv
@@ -10,8 +10,8 @@ import io
 
 from db import init_db, query_db, IS_POSTGRES
 
-app = Flask(__name__)
-# Enable CORS for frontend requests on port 5173
+static_folder_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../frontend/dist")
+app = Flask(__name__, static_folder=static_folder_path, static_url_path="")
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 from flask.json.provider import DefaultJSONProvider
@@ -478,9 +478,19 @@ def export_csv():
     output.headers["Content-type"] = "text/csv"
     return output
 
+# Serve React App
+@app.route("/", defaults={"path": ""})
+@app.route("/<path:path>")
+def serve(path):
+    if path != "" and os.path.exists(os.path.join(app.static_folder, path)):
+        return send_from_directory(app.static_folder, path)
+    else:
+        return send_from_directory(app.static_folder, "index.html")
+
 if __name__ == "__main__":
     # Setup database structure on startup
     init_db()
     
     # Run the server on host 0.0.0.0 and port 5000
     app.run(host="0.0.0.0", port=5000, debug=True)
+
