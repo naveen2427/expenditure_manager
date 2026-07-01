@@ -116,6 +116,14 @@ def init_postgres_db():
         conn.commit()
         logger.info("PostgreSQL tables verified/created.")
         
+        # Seed default user with ID 1
+        cursor.execute("""
+            INSERT INTO users (id, username, email, password_hash)
+            VALUES (1, 'default', 'default@example.com', 'default')
+            ON CONFLICT (id) DO NOTHING;
+        """)
+        conn.commit()
+        
         # 2. Seed default categories
         default_categories = [
             ("Salary", "income", "#10B981"),
@@ -231,6 +239,13 @@ def init_mysql_db():
         
         conn.commit()
         logger.info("MySQL tables verified/created.")
+        
+        # Seed default user with ID 1
+        cursor.execute("""
+            INSERT IGNORE INTO users (id, username, email, password_hash)
+            VALUES (1, 'default', 'default@example.com', 'default')
+        """)
+        conn.commit()
         
         default_categories = [
             ("Salary", "income", "#10B981"),

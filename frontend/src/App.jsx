@@ -6,7 +6,7 @@ import Transactions from './components/Transactions';
 import Reports from './components/Reports';
 
 export default function App() {
-  const [token, setToken] = useState(localStorage.getItem('token') || null);
+  const [token, setToken] = useState('single-user-session');
   const [user, setUser] = useState(null);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [loading, setLoading] = useState(true);
@@ -14,11 +14,6 @@ export default function App() {
   // Validate session token on startup
   useEffect(() => {
     const validateSession = async () => {
-      if (!token) {
-        setLoading(false);
-        return;
-      }
-
       try {
         const response = await fetch('/api/auth/me', {
           headers: {
@@ -30,12 +25,12 @@ export default function App() {
           const data = await response.json();
           setUser(data.user);
         } else {
-          // Token expired or invalid, logout client-side
-          handleLogout();
+          // Fallback user details if API fails or backend is initializing
+          setUser({ username: 'Expenditure Manager', email: 'active' });
         }
       } catch (err) {
         console.error("Error validating session", err);
-        // Keep session for offline state but stop loading
+        setUser({ username: 'Expenditure Manager', email: 'active' });
       } finally {
         setLoading(false);
       }
@@ -45,28 +40,9 @@ export default function App() {
   }, [token]);
 
   const handleLoginSuccess = (newToken, loggedUser) => {
-    localStorage.setItem('token', newToken);
     setToken(newToken);
     setUser(loggedUser);
     setActiveTab('dashboard');
-  };
-
-  const handleLogout = async () => {
-    if (token) {
-      try {
-        await fetch('/api/auth/logout', {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-      } catch (err) {
-        console.error("Logout request failed", err);
-      }
-    }
-    localStorage.removeItem('token');
-    setToken(null);
-    setUser(null);
   };
 
   if (loading) {
@@ -76,13 +52,13 @@ export default function App() {
           <div style={{ display: 'inline-flex', width: '48px', height: '48px', backgroundColor: 'var(--color-primary-light)', color: 'var(--color-primary)', borderRadius: '12px', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
             <Wallet size={24} />
           </div>
-          <p style={{ fontWeight: '500', color: 'var(--color-text-sub)' }}>Validating Session...</p>
+          <p style={{ fontWeight: '500', color: 'var(--color-text-sub)' }}>Loading Tracker...</p>
         </div>
       </div>
     );
   }
 
-  // If no authenticated user, show registration/login page
+  // If no authenticated user, show registration/login page (fallback, though we default user above)
   if (!token || !user) {
     return <Auth onLoginSuccess={handleLoginSuccess} />;
   }
@@ -124,16 +100,12 @@ export default function App() {
           </button>
         </nav>
 
-        {/* Logged in User Status */}
-        <div className="user-profile-section">
+        {/* Simplified Branding footer */}
+        <div className="user-profile-section" style={{ borderTop: '1px solid var(--color-border)' }}>
           <div className="user-info">
-            <span className="username">{user.username}</span>
-            <span className="user-email">{user.email}</span>
+            <span className="username">Expenditure Tracker</span>
+            <span className="user-email">Single User Mode</span>
           </div>
-          <button className="btn-logout" onClick={handleLogout}>
-            <LogOut size={14} />
-            <span>Sign Out</span>
-          </button>
         </div>
       </aside>
 
