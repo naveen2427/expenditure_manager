@@ -491,6 +491,6 @@ if __name__ == "__main__":
     # Setup database structure on startup
     init_db()
     
-    # Run the server on host 0.0.0.0 and port 5000
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    # Run the server on host 0.0.0.0 and port 5050
+    app.run(host="0.0.0.0", port=5050, debug=True)
 
