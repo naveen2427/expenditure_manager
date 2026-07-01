@@ -14,6 +14,10 @@ static_folder_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".
 app = Flask(__name__, static_folder=static_folder_path, static_url_path="")
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
+# Initialize database tables on startup (essential for Gunicorn servers)
+with app.app_context():
+    init_db()
+
 from flask.json.provider import DefaultJSONProvider
 
 # Helper to JSON serialize decimal objects and date/datetime objects
