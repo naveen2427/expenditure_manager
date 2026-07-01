@@ -95,7 +95,7 @@ export default function App() {
           <div className="brand-logo">
             <Wallet size={20} />
           </div>
-          <span className="brand-name">PennyWise</span>
+          <span className="brand-name">Expenditure Manager</span>
         </div>
 
         <nav className="nav-links">

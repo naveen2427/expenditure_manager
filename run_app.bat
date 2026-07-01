@@ -1,18 +1,18 @@
 @echo off
-title PennyWise Financial App Launcher
+title Expenditure Manager Launcher
 echo ====================================================================
-echo     PENNYWISE: PERSONAL FINANCE ^& EXPENSE TRACKER LAUNCHER
+echo     EXPENDITURE MANAGER: PERSONAL FINANCE LAUNCHER
 echo ====================================================================
 echo.
 
 echo [1/2] Launching Flask Backend Server (MySQL Connection)...
 cd backend
-start cmd /k "title PennyWise Backend ^&^& echo Booting Flask server with MySQL connection... ^&^& python app.py"
+start cmd /k "title Expenditure Manager Backend ^&^& echo Booting Flask server with MySQL connection... ^&^& python app.py"
 cd ..
 
 echo [2/2] Launching React Frontend Server (Vite Development)...
 cd frontend
-start cmd /k "title PennyWise Frontend ^&^& echo Booting React development server... ^&^& npm run dev"
+start cmd /k "title Expenditure Manager Frontend ^&^& echo Booting React development server... ^&^& npm run dev"
 cd ..
 
 echo.
